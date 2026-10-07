@@ -19,7 +19,7 @@ const CONFIG = {
   ],
 
   // Canzone (MP3): parte subito dopo i coriandoli delle candeline. Lascia "" se non c'è.
-  musica: "musica/canzone.mp3?v=2",
+  musica: "musica/canzone.mp3?v=3",
   musicaDa: 0,        // da che secondo far partire la canzone (es. 45 = dal ritornello)
   musicaLoop: false,  // true = ricomincia quando finisce, false = si ferma
 
@@ -160,9 +160,9 @@ const confetti = (() => {
 })();
 
 /* ---------- Audio: canzone + effetto festa ----------
-   I telefoni fanno partire l'audio solo dentro un tocco. La canzone quindi parte
-   quando lei alza il dito dopo aver scoperto la torta: il file inizia con 2 s di
-   silenzio, così la musica si sente proprio mentre si spengono le candeline.
+   I telefoni fanno partire l'audio solo dentro un tocco secco. La canzone parte
+   quando lei tocca la torta per soffiare le candeline (il file inizia con 0,7 s
+   di silenzio, così si sente appena le fiammelle si spengono).
    L'effetto festa parte dal tocco sul biglietto. */
 const sound = (() => {
   const song = $("#music"), btn = $("#music-btn");
@@ -265,24 +265,34 @@ function initScratch() {
   }
   function check() { if (!done && cleared() > 0.5) win(); }
 
-  function win() {
+  const wait = (ms) => new Promise((r) => setTimeout(r, reduceMotion ? Math.min(ms, 300) : ms));
+  let blown = false;
+
+  function win() {                                // torta scoperta, candeline accese
     if (done) return; done = true;
-    const wait = (ms) => new Promise((r) => setTimeout(r, reduceMotion ? Math.min(ms, 300) : ms));
     canvas.classList.add("cleared");
     $("#scratch-hint").hidden = true; $("#scratch-skip").hidden = true;
     if (navigator.vibrate) navigator.vibrate(30);
-
-    (async () => {
-      await wait(1500);                           // si vede la torta con le candeline accese
-      $("#cake").classList.add("out");            // soffio: le candeline si spengono
-      wrap.classList.add("dark");
-      if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
-      await wait(1100);
-      showGreeting();                             // "Buon compleanno, amore" lettera per lettera
-      await wait(3600);
-      show("lettera");                            // scorre da solo fino alla busta
-    })();
+    setTimeout(() => { wrap.classList.add("ready"); $("#blow-btn").hidden = false; }, 900);
   }
+
+  // Lei tocca la torta: si spengono le candeline e parte la canzone.
+  // Deve essere un tocco secco: su iPhone il "dito alzato" dopo aver grattato
+  // (un trascinamento) non vale come gesto e la musica verrebbe bloccata.
+  async function blow() {
+    if (blown || !wrap.classList.contains("ready")) return; blown = true;
+    sound.startSong();
+    wrap.classList.remove("ready"); $("#blow-btn").hidden = true;
+    $("#cake").classList.add("out");
+    wrap.classList.add("dark");
+    if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
+    await wait(1100);
+    showGreeting();                               // "Buon compleanno, amore" lettera per lettera
+    await wait(3600);
+    show("lettera");                              // scorre da solo fino alla busta
+  }
+  wrap.addEventListener("click", blow);
+  $("#blow-btn").addEventListener("click", blow);
 
   function showGreeting() {
     const el = $("#greeting");
@@ -316,15 +326,6 @@ function initScratch() {
   });
   ["pointerup", "pointercancel", "pointerleave"].forEach((ev) =>
     canvas.addEventListener(ev, () => { if (drawing) { drawing = false; check(); } }));
-  // La canzone parte al primo "dito alzato" dopo aver scoperto la torta
-  // (sui telefoni è l'unico momento in cui l'audio è permesso)
-  const songEvents = ["pointerup", "touchend", "click"];
-  const startOnGesture = () => {
-    if (!done) return;
-    songEvents.forEach((ev) => document.removeEventListener(ev, startOnGesture));
-    sound.startSong();
-  };
-  songEvents.forEach((ev) => document.addEventListener(ev, startOnGesture));
 
   // Ridisegna solo se non ha ancora iniziato a grattare
   addEventListener("resize", () => { if (!touched) paint(); });
