@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#0f2233">
+  <title>Per te ♥</title>
+  <meta property="og:title" content="Per te ♥">
+  <meta property="og:description" content="Una piccola sorpresa per il tuo compleanno. Aprila quando sei pronta.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <canvas id="confetti" aria-hidden="true"></canvas>
+  <button id="music-btn" class="music-btn" type="button" hidden aria-label="Musica on/off">♪</button>
+  <audio id="music" loop preload="none"></audio>
+
+  <!-- ========== 1. INTRO: GRATTA E VINCI ========== -->
+  <section id="intro" class="screen intro">
+    <div class="stars" aria-hidden="true"></div>
+    <p class="eyebrow">9 ottobre</p>
+    <h1 class="intro-title">C'è qualcosa<br><em>per te</em></h1>
+
+    <div class="scratch" id="scratch">
+      <div class="scratch-prize">
+        <span class="prize-emoji">🎂</span>
+        <p class="prize-title">Buon compleanno,<br><span class="js-nome">amore</span></p>
+        <p class="prize-sub">e non è tutto…</p>
+      </div>
+      <canvas id="scratch-canvas" aria-label="Gratta per scoprire"></canvas>
+    </div>
+
+    <p class="hint" id="scratch-hint">Gratta con il dito ✨</p>
+    <button class="link-btn" id="scratch-skip" type="button" hidden>Non riesci? Tocca qui</button>
+    <a href="#lettera" class="scroll-cue" id="scroll-cue" hidden>Scorri <span>↓</span></a>
+
+    <svg class="mountains" viewBox="0 0 400 120" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 120 L0 70 L40 48 L70 62 L110 30 L150 58 L185 40 L220 64 L260 26 L300 56 L340 38 L400 66 L400 120 Z" fill="#17344a"/>
+      <path d="M0 120 L0 88 L50 72 L90 84 L140 66 L190 86 L240 70 L290 88 L340 74 L400 90 L400 120 Z" fill="#1d3f58"/>
+      <rect y="104" width="400" height="16" fill="#0f2233"/>
+    </svg>
+  </section>
+
+  <!-- ========== 2. LETTERA + FOTO ========== -->
+  <section id="lettera" class="section paper-bg" hidden>
+    <p class="eyebrow dark">Prima di tutto</p>
+    <h2 class="reveal">Una lettera per te</h2>
+
+    <div class="envelope reveal" id="envelope" role="button" tabindex="0" aria-label="Apri la lettera">
+      <div class="env-back"></div>
+      <div class="env-card"></div>
+      <div class="env-pocket"></div>
+      <div class="env-flap"></div>
+      <div class="seal">♥</div>
+    </div>
+    <p class="hint dark" id="envelope-hint">Tocca la busta</p>
+
+    <article class="letter" id="letter" hidden>
+      <div id="letter-text"></div>
+      <p class="letter-sign" id="letter-sign"></p>
+    </article>
+
+    <div class="memories" id="memories" hidden>
+      <h3 class="reveal">Noi, finora</h3>
+      <div class="gallery" id="gallery"></div>
+      <p class="hint dark small">← scorri le foto →</p>
+      <div class="video-wrap" id="video-wrap" hidden>
+        <video id="video" controls playsinline preload="metadata"></video>
+      </div>
+      <button class="cta" id="to-trip" type="button">Ma non è finita qui…</button>
+    </div>
+  </section>
+
+  <!-- ========== 3. REVEAL DEL VIAGGIO ========== -->
+  <section id="viaggio" class="section lake-bg" hidden>
+    <p class="eyebrow">Il tuo regalo</p>
+    <h2 class="reveal">Prepara la valigia…</h2>
+
+    <div class="ticket-wrap reveal">
+      <div class="ticket" id="ticket" role="button" tabindex="0" aria-label="Gira il biglietto">
+        <!-- fronte -->
+        <div class="ticket-face ticket-front">
+          <div class="t-top"><span>Biglietto</span><span>Admit two</span></div>
+          <div class="t-main">
+            <p class="t-label">Destinazione</p>
+            <p class="t-mystery">? ? ?</p>
+          </div>
+          <div class="t-row">
+            <div><p class="t-label">Quando</p><p class="t-val">? ? ?</p></div>
+            <div><p class="t-label">Chi</p><p class="t-val">Tu &amp; io</p></div>
+          </div>
+          <div class="t-perf"></div>
+          <p class="t-tap">Tocca per scoprire</p>
+        </div>
+        <!-- retro -->
+        <div class="ticket-face ticket-back">
+          <div class="t-top"><span>Biglietto</span><span>Admit two</span></div>
+          <div class="t-main">
+            <p class="t-label">Destinazione</p>
+            <p class="t-dest">Lago di Como</p>
+            <p class="t-tagline">Tre giorni sul lago, solo noi due</p>
+          </div>
+          <div class="t-row">
+            <div><p class="t-label">Partenza</p><p class="t-val">Ven 6 nov</p></div>
+            <div><p class="t-label">Ritorno</p><p class="t-val">Dom 8 nov</p></div>
+          </div>
+          <div class="t-row single">
+            <div><p class="t-label">Dove dormiamo</p><p class="t-val">LaCasetta · Como Lakeview Terrace</p><p class="t-sub">Carate Urio, con terrazza vista lago</p></div>
+          </div>
+          <div class="t-perf"></div>
+          <div class="t-barcode" aria-hidden="true"></div>
+        </div>
+      </div>
+    </div>
+    <p class="hint" id="ticket-hint">Tocca il biglietto</p>
+
+    <div class="after-ticket" id="after-ticket" hidden>
+      <p class="countdown-label">Partiamo tra</p>
+      <div class="countdown" id="countdown">
+        <div><span id="cd-d">--</span><small>giorni</small></div>
+        <div><span id="cd-h">--</span><small>ore</small></div>
+        <div><span id="cd-m">--</span><small>min</small></div>
+        <div><span id="cd-s">--</span><small>sec</small></div>
+      </div>
+      <button class="cta ghost" id="add-cal" type="button">📅 Segnalo in calendario</button>
+    </div>
+  </section>
+
+  <!-- ========== 4. ITINERARIO ========== -->
+  <section id="itinerario" class="section paper-bg" hidden>
+    <p class="eyebrow dark">Il programma</p>
+    <h2 class="reveal">Tre giorni, giorno per giorno</h2>
+
+    <figure class="map reveal" aria-label="Mappa stilizzata del Lago di Como">
+      <svg viewBox="0 0 300 330" role="img">
+        <path class="lake" d="M196 14 C190 60 194 100 182 150 C178 162 176 170 172 178"/>
+        <path class="lake" d="M172 178 C160 200 140 214 128 236 C116 258 100 270 92 290 C86 304 74 314 62 318"/>
+        <path class="lake" d="M172 178 C186 204 200 226 206 252 C210 272 218 292 226 312"/>
+        <g class="pins" id="map-pins"></g>
+      </svg>
+      <figcaption>Mappa stilizzata · tocca un punto</figcaption>
+    </figure>
+
+    <div id="days"></div>
+
+    <div class="notes">
+      <h3 class="reveal">Note di viaggio</h3>
+      <details class="note">
+        <summary>🚗 Per il pilota: auto &amp; parcheggi</summary>
+        <p>Le strade del lago sono strette e i borghi come Carate Urio si sviluppano in verticale, con pochissimi posti auto.</p>
+        <ul>
+          <li><b>A Carate Urio:</b> chiedere all'host di LaCasetta se c'è un posto privato o una piazzola consigliata vicino a Via Cesare Battisti. Altrimenti, parcheggi pubblici lungo la statale (Via Regina): occhio a strisce blu (a pagamento) o bianche (disco orario).</li>
+          <li><b>Como città:</b> niente centro. Parcheggio Centro Lago (Via Sant'Elia) o Autosilo Valduce (Viale Lecco), vicini alla zona pedonale e al Duomo.</li>
+          <li><b>Bellagio / Varenna:</b> non ci si va in auto. Si lascia la macchina a Como o a Cadenabbia/Griante e ci si muove in traghetto.</li>
+        </ul>
+      </details>
+      <details class="note">
+        <summary>🌿 La regola delle ville</summary>
+        <p>Molte ville storiche chiudono i giardini a inizio novembre. Villa Cipressi a Varenna e Villa Monastero restano parzialmente accessibili o attivano eventi invernali: controlliamo sempre i siti ufficiali prima di muoverci.</p>
+      </details>
+      <details class="note">
+        <summary>☔ Piano B se fa molto brutto</summary>
+        <p>Mezza giornata dedicata al tessuto di Como: il <a href="http://www.museosetacomo.com/" target="_blank" rel="noopener">Museo della Seta</a>, al coperto, racconta la storia industriale e della moda della città.</p>
+      </details>
+      <details class="note">
+        <summary>🍂 Da assaggiare assolutamente</summary>
+        <p>La <b>Resta di Como</b> (dolce lievitato con uvetta e canditi) e i piatti con <b>funghi e castagne</b> locali.</p>
+      </details>
+    </div>
+
+    <div class="links">
+      <h3 class="reveal">Link utili</h3>
+      <a href="https://www.navigazionelaghi.it/" target="_blank" rel="noopener"><span>⛴️</span>Navigazione Laghi · orari invernali</a>
+      <a href="https://www.arpalombardia.it/" target="_blank" rel="noopener"><span>🌦️</span>Meteo · Arpa Lombardia</a>
+      <a href="https://www.funicolarecomo.it/" target="_blank" rel="noopener"><span>🚠</span>Funicolare Como–Brunate</a>
+      <a href="https://www.booking.com/hotel/it/lacasetta-como-lakeview-terrace-renovated-apartment.it.html" target="_blank" rel="noopener"><span>🏡</span>LaCasetta su Booking.com</a>
+    </div>
+
+    <button class="cta" id="to-end" type="button">Un'ultima cosa…</button>
+  </section>
+
+  <!-- ========== 5. FINALE ========== -->
+  <section id="finale" class="screen finale" hidden>
+    <div class="stars" aria-hidden="true"></div>
+    <p class="finale-text reveal" id="finale-text"></p>
+    <button class="heart-btn" id="heart" type="button" aria-label="Cuore">♥</button>
+    <p class="hint small" id="heart-hint">&nbsp;</p>
+    <div class="secret" id="secret" hidden></div>
+    <button class="link-btn" id="restart" type="button">Rivivi dall'inizio</button>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>
