@@ -18,8 +18,13 @@ const CONFIG = {
     "Sei la persona migliore che ci sia, mi hai reso e mi rendi tutti i giorni un uomo migliore.",
   ],
 
-  // Canzone facoltativa (MP3). Parte al primo tocco sul gratta e vinci.
-  musica: "",         // es. "musica/la-nostra-canzone.mp3"
+  // Canzone (MP3): parte subito dopo i coriandoli delle candeline. Lascia "" se non c'è.
+  musica: "",         // es. "musica/canzone.mp3"
+  musicaDa: 0,        // da che secondo far partire la canzone (es. 45 = dal ritornello)
+  musicaLoop: true,   // true = ricomincia quando finisce, false = si ferma
+
+  // Effetto sonoro dei coriandoli
+  suonoFesta: "suoni/festa.mp3",
 
   // Messaggio segreto: si sblocca toccando 5 volte il cuore finale
   segreto: "Lo sapevo che l'avresti trovato. Ti amo più di quanto riesca a scrivere. Il 6 novembre, la prima sera, sulla terrazza: ho ancora una cosa da dirti. ♥",
@@ -157,24 +162,63 @@ const confetti = (() => {
   return burst;
 })();
 
-/* ---------- Musica ---------- */
-const music = (() => {
-  const audio = $("#music"), btn = $("#music-btn");
-  let started = false;
-  if (!CONFIG.musica) return { start() {} };
-  audio.src = CONFIG.musica;
+/* ---------- Audio: effetto festa + canzone ----------
+   I telefoni fanno partire l'audio solo dopo un tocco: al primo tocco sul
+   gratta e vinci "sblocchiamo" i suoni, poi possono partire da soli. */
+const sound = (() => {
+  const song = $("#music"), btn = $("#music-btn");
+  const sfx = CONFIG.suonoFesta ? new Audio(CONFIG.suonoFesta) : null;
+  let unlocked = false, songStarted = false, fadeTimer = null;
+  if (sfx) sfx.preload = "auto";
+  if (CONFIG.musica) { song.src = CONFIG.musica; song.loop = CONFIG.musicaLoop; song.preload = "auto"; }
+
+  function unlock() {
+    if (unlocked) return; unlocked = true;
+    try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) {}
+    [sfx, CONFIG.musica ? song : null].filter(Boolean).forEach((a) => {
+      a.muted = true;
+      const p = a.play();
+      const reset = () => { a.pause(); a.currentTime = 0; a.muted = false; };
+      p && p.then ? p.then(reset).catch(() => { a.muted = false; }) : reset();
+    });
+  }
+
+  function fadeTo(target, ms) {        // su iPhone il volume è fisso: lì la dissolvenza viene ignorata
+    clearInterval(fadeTimer);
+    const start = song.volume, steps = Math.max(1, Math.round(ms / 50));
+    let i = 0;
+    fadeTimer = setInterval(() => {
+      i++; song.volume = Math.min(1, Math.max(0, start + (target - start) * (i / steps)));
+      if (i >= steps) clearInterval(fadeTimer);
+    }, 50);
+  }
+
+  function festa(vol = 1) {
+    if (!sfx) return;
+    sfx.currentTime = 0; sfx.volume = vol;
+    sfx.play().catch(() => {});
+    if (songStarted && !song.paused) {        // abbassa un attimo la canzone
+      fadeTo(0.25, 200);
+      setTimeout(() => fadeTo(0.8, 1200), 1800);
+    }
+  }
+
+  function startSong() {
+    if (!CONFIG.musica || songStarted) return; songStarted = true;
+    song.currentTime = CONFIG.musicaDa || 0;
+    song.volume = 0;
+    song.play().then(() => {
+      fadeTo(0.8, 2500);
+      btn.hidden = false; btn.classList.add("playing");
+    }).catch(() => { btn.hidden = false; btn.classList.add("muted"); });
+  }
+
   btn.addEventListener("click", () => {
-    if (audio.paused) { audio.play(); btn.classList.add("playing"); btn.classList.remove("muted"); }
-    else { audio.pause(); btn.classList.remove("playing"); btn.classList.add("muted"); }
+    if (song.paused) { song.volume = 0.8; song.play(); btn.classList.add("playing"); btn.classList.remove("muted"); }
+    else { song.pause(); btn.classList.remove("playing"); btn.classList.add("muted"); }
   });
-  return {
-    start() {
-      if (started) return; started = true;
-      audio.volume = 0.7;
-      audio.play().then(() => { btn.hidden = false; btn.classList.add("playing"); })
-        .catch(() => { btn.hidden = false; btn.classList.add("muted"); });
-    },
-  };
+
+  return { unlock, festa, startSong };
 })();
 
 /* ---------- 1. Gratta e vinci ---------- */
@@ -233,7 +277,10 @@ function initScratch() {
       showGreeting();                             // "Buon compleanno, amore" lettera per lettera
       await wait(500);
       confetti(160, 0.4);
-      await wait(2600);
+      sound.festa();
+      await wait(900);
+      sound.startSong();                          // parte la canzone
+      await wait(1700);
       show("lettera");                            // scorre da solo fino alla busta
     })();
   }
@@ -262,7 +309,6 @@ function initScratch() {
     drawing = true; touched = true; last = pos(e);
     canvas.setPointerCapture?.(e.pointerId);
     stroke(last, { x: last.x + 0.1, y: last.y });
-    music.start();
   });
   canvas.addEventListener("pointermove", (e) => {
     if (!drawing) return;
@@ -271,6 +317,8 @@ function initScratch() {
   });
   ["pointerup", "pointercancel", "pointerleave"].forEach((ev) =>
     canvas.addEventListener(ev, () => { if (drawing) { drawing = false; check(); } }));
+  // Sblocco audio: sui touch vale il "dito alzato", non il "dito appoggiato"
+  ["pointerup", "touchend", "click"].forEach((ev) => canvas.addEventListener(ev, sound.unlock));
 
   // Ridisegna solo se non ha ancora iniziato a grattare
   addEventListener("resize", () => { if (!touched) paint(); });
@@ -279,7 +327,7 @@ function initScratch() {
 
   // Piano B: dopo 12 secondi compare "Non riesci? Tocca qui"
   setTimeout(() => { if (!done) $("#scratch-skip").hidden = false; }, 12000);
-  $("#scratch-skip").addEventListener("click", () => { music.start(); win(); });
+  $("#scratch-skip").addEventListener("click", () => { sound.unlock(); win(); });
 }
 
 /* ---------- 2. Lettera ---------- */
@@ -329,6 +377,7 @@ function initTicket() {
     $("#ticket-hint").hidden = true;
     setTimeout(() => {
       confetti(180, 0.4);
+      sound.festa();
       if (navigator.vibrate) navigator.vibrate([40, 60, 40, 60, 80]);
       $("#after-ticket").hidden = false;
       $("#itinerario").hidden = false;
@@ -456,6 +505,7 @@ function initFinale() {
     $("#secret").textContent = CONFIG.segreto;
     $("#secret").hidden = false;
     confetti(200, 0.5);
+    sound.festa(0.7);
   });
   $("#restart").addEventListener("click", () => { window.scrollTo(0, 0); location.reload(); });
 }
