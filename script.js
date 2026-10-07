@@ -5,17 +5,17 @@ const CONFIG = {
   // Scritta che appare dopo le candeline: "Buon compleanno, <nome>"
   nome: "amore",
 
-  // La tua firma in fondo alla lettera
-  firma: "Tuo, per sempre",
+  // La firma in fondo alla lettera (allineata a destra)
+  firma: "Ti amo",
 
-  // La lettera: un paragrafo per riga. Riscrivila con parole tue!
-  // Tutto ciò che è tra [parentesi quadre] va sostituito.
+  // La lettera: un paragrafo per riga, ogni riga tra virgolette e con la virgola finale.
   lettera: [
-    "Buon compleanno, amore mio.",
-    "Ogni anno provo a trovare il regalo giusto, e ogni anno mi accorgo che la cosa più bella che posso darti è tempo. Tempo solo nostro, lontano dal solito, a guardarci e a ridere come [quella volta che…].",
-    "Mi ricordo ancora [il primo ricordo insieme che ti viene in mente], e da lì non ho più smesso di pensare a quanto sono fortunato.",
-    "Grazie per [una cosa che ami di lei]. Grazie per come mi guardi quando pensi che non me ne accorga.",
-    "Quest'anno ho preparato una piccola fuga. Non ti dico ancora dove… prima leggi fino in fondo.",
+    "Buon compleanno Gigia,",
+    "Ormai abbiamo passato tanti compleanni insieme e non vedo l’ora di passarne altrettanti. Nell’ultimo anno abbiamo affrontato tante cose, forse è stato uno degli anni più difficili.",
+    "Sono veramente felice di aver risolto ma sono ancora più felice di sapere come è andata, non ti nascondo di aver avuto paura e provato anche rabbia per tutto quello che è successo e che ci siamo detti, ma c’è una cosa che mi ha sempre convinto: molte volte basta guardarci e tutto il resto si annulla, si resetta.",
+    "Mi basta un tuo sorriso per farmi passare la rabbia, mi basta un tuo ciao per sollevarmi la giornata. Sono felice di come abbiamo affrontato tutto nel bene e nel male perché ci ha cambiati, migliorati e resi ancora più uniti. Anche tutti i momenti brutti, in cui eravamo distanti penso che ci abbiano forgiato e fatto capire quanto l’altra persona vale per noi.",
+    "Mi manchi e vorrei essere più presente, in un anno o poco più ci siamo dovuti adattare a un nuovo mondo, ci vediamo di meno e dobbiamo sempre trovare momenti o buchi per vederci, volevo farti sapere che se non ti mando un messaggio o non ci sentiamo comunque io ti penso sempre, sei sempre nella mia testa. Quando ho una brutta giornata e sono impegnato tra mille cose basta pensarti per farmi lavorare sereno e migliorare.",
+    "Sei la persona migliore che ci sia, mi hai reso e mi rendi tutti i giorni un uomo migliore.",
   ],
 
   // Canzone facoltativa (MP3). Parte al primo tocco sul gratta e vinci.

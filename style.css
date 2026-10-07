@@ -291,7 +291,7 @@ h3 { font-size: 1.6rem; text-align: center; margin: 48px 0 16px; }
   animation: rise .9s cubic-bezier(.2, .8, .2, 1) both;
 }
 .letter p { margin: 0 0 .8em; opacity: 0; animation: fadeIn 1s ease forwards; }
-.letter .letter-sign { text-align: right; font-size: 1.6rem; margin-top: 1em; }
+.letter .letter-sign { text-align: right; font-size: 2.1rem; font-weight: 700; color: var(--wine); margin-top: 1em; }
 @keyframes rise { from { opacity: 0; transform: translateY(40px) rotate(-.6deg); } }
 @keyframes fadeIn { to { opacity: 1; } }
 
