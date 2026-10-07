@@ -19,7 +19,7 @@ const CONFIG = {
   ],
 
   // Canzone (MP3): parte subito dopo i coriandoli delle candeline. Lascia "" se non c'è.
-  musica: "musica/canzone.mp3",
+  musica: "musica/canzone.mp3?v=2",
   musicaDa: 0,        // da che secondo far partire la canzone (es. 45 = dal ritornello)
   musicaLoop: false,  // true = ricomincia quando finisce, false = si ferma
 
@@ -160,24 +160,16 @@ const confetti = (() => {
 })();
 
 /* ---------- Audio: canzone + effetto festa ----------
-   I telefoni fanno partire l'audio solo dopo un tocco. Quando lei alza il dito
-   dal gratta e vinci facciamo play()+pause() immediati sulla canzone (non si
-   sente nulla): così dopo può partire da sola, appena si spengono le candeline.
-   L'effetto festa parte solo dal tocco sul biglietto, quindi non serve sbloccarlo. */
+   I telefoni fanno partire l'audio solo dentro un tocco. La canzone quindi parte
+   quando lei alza il dito dopo aver scoperto la torta: il file inizia con 2 s di
+   silenzio, così la musica si sente proprio mentre si spengono le candeline.
+   L'effetto festa parte dal tocco sul biglietto. */
 const sound = (() => {
   const song = $("#music"), btn = $("#music-btn");
   const sfx = CONFIG.suonoFesta ? new Audio(CONFIG.suonoFesta) : null;
-  let unlocked = false, songStarted = false, fadeTimer = null;
+  let songStarted = false, fadeTimer = null;
   if (sfx) sfx.preload = "auto";
   if (CONFIG.musica) { song.src = CONFIG.musica; song.loop = CONFIG.musicaLoop; song.preload = "auto"; }
-
-  function unlock() {
-    if (unlocked || !CONFIG.musica) return; unlocked = true;
-    try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) {}
-    const p = song.play();
-    song.pause();
-    if (p && p.catch) p.catch(() => {});
-  }
 
   function fadeTo(target, ms) {        // su iPhone il volume è fisso: lì la dissolvenza viene ignorata
     clearInterval(fadeTimer);
@@ -205,11 +197,12 @@ const sound = (() => {
     });
   }
 
-  function startSong() {
+  function startSong() {               // da chiamare dentro un tocco
     if (!CONFIG.musica || songStarted) return; songStarted = true;
+    try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) {}
     song.currentTime = CONFIG.musicaDa || 0;
-    song.volume = 0.2;
-    playSong().then(() => fadeTo(0.8, 2000)).catch(() => {
+    song.volume = 0.8;
+    playSong().catch(() => {
       // Il telefono l'ha bloccata: riparte al prossimo tocco (es. sulla busta)
       song.volume = 0.8;
       btn.hidden = false; btn.classList.add("muted");
@@ -229,7 +222,7 @@ const sound = (() => {
     else { song.pause(); btn.classList.remove("playing"); btn.classList.add("muted"); }
   });
 
-  return { unlock, festa, startSong };
+  return { festa, startSong };
 })();
 
 /* ---------- 1. Gratta e vinci ---------- */
@@ -284,9 +277,7 @@ function initScratch() {
       $("#cake").classList.add("out");            // soffio: le candeline si spengono
       wrap.classList.add("dark");
       if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
-      await wait(700);
-      sound.startSong();                          // candeline spente: parte la canzone
-      await wait(400);
+      await wait(1100);
       showGreeting();                             // "Buon compleanno, amore" lettera per lettera
       await wait(3600);
       show("lettera");                            // scorre da solo fino alla busta
@@ -325,8 +316,15 @@ function initScratch() {
   });
   ["pointerup", "pointercancel", "pointerleave"].forEach((ev) =>
     canvas.addEventListener(ev, () => { if (drawing) { drawing = false; check(); } }));
-  // Sblocco audio: sui touch vale il "dito alzato", non il "dito appoggiato"
-  ["pointerup", "touchend", "click"].forEach((ev) => canvas.addEventListener(ev, sound.unlock));
+  // La canzone parte al primo "dito alzato" dopo aver scoperto la torta
+  // (sui telefoni è l'unico momento in cui l'audio è permesso)
+  const songEvents = ["pointerup", "touchend", "click"];
+  const startOnGesture = () => {
+    if (!done) return;
+    songEvents.forEach((ev) => document.removeEventListener(ev, startOnGesture));
+    sound.startSong();
+  };
+  songEvents.forEach((ev) => document.addEventListener(ev, startOnGesture));
 
   // Ridisegna solo se non ha ancora iniziato a grattare
   addEventListener("resize", () => { if (!touched) paint(); });
@@ -335,7 +333,7 @@ function initScratch() {
 
   // Piano B: dopo 12 secondi compare "Non riesci? Tocca qui"
   setTimeout(() => { if (!done) $("#scratch-skip").hidden = false; }, 12000);
-  $("#scratch-skip").addEventListener("click", () => { sound.unlock(); win(); });
+  $("#scratch-skip").addEventListener("click", () => { win(); });
 }
 
 /* ---------- 2. Lettera ---------- */
