@@ -23,21 +23,82 @@
   <!-- ========== 1. INTRO: GRATTA E VINCI ========== -->
   <section id="intro" class="screen intro">
     <div class="stars" aria-hidden="true"></div>
-    <p class="eyebrow">9 ottobre</p>
     <h1 class="intro-title">C'è qualcosa<br><em>per te</em></h1>
 
     <div class="scratch" id="scratch">
       <div class="scratch-prize">
-        <span class="prize-emoji">🎂</span>
-        <p class="prize-title">Buon compleanno,<br><span class="js-nome">amore</span></p>
-        <p class="prize-sub">e non è tutto…</p>
+        <svg class="cake" id="cake" viewBox="0 0 200 200" aria-hidden="true">
+          <defs>
+            <radialGradient id="flameG" cx="50%" cy="72%" r="62%">
+              <stop offset="0" stop-color="#fffbe6"/>
+              <stop offset=".45" stop-color="#ffd166"/>
+              <stop offset="1" stop-color="#ff7a2e"/>
+            </radialGradient>
+            <radialGradient id="glowG">
+              <stop offset="0" stop-color="#ffd98a" stop-opacity=".6"/>
+              <stop offset="1" stop-color="#ffd98a" stop-opacity="0"/>
+            </radialGradient>
+            <pattern id="stripes" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+              <rect width="8" height="8" fill="#fbf6ec"/>
+              <rect width="3" height="8" fill="#c96b6b"/>
+            </pattern>
+          </defs>
+
+          <!-- piatto -->
+          <ellipse cx="100" cy="182" rx="90" ry="9" fill="#d9c6a3"/>
+          <ellipse cx="100" cy="179" rx="84" ry="7" fill="#efe3cc"/>
+
+          <!-- piano basso -->
+          <rect x="28" y="120" width="144" height="58" rx="9" fill="#f3e3c8"/>
+          <rect x="28" y="150" width="144" height="7" fill="#c96b6b" opacity=".85"/>
+          <path d="M28 130 Q28 120 38 120 H162 Q172 120 172 130 V134 Q166 142 160 134 Q154 146 146 134 Q138 140 130 134 Q122 148 114 134 Q106 141 98 134 Q90 147 82 134 Q74 140 66 134 Q58 146 50 134 Q42 141 36 134 Q31 139 28 134 Z" fill="#fffaf0"/>
+
+          <!-- piano alto -->
+          <rect x="50" y="80" width="100" height="46" rx="8" fill="#fbf2e2"/>
+          <path d="M50 90 Q50 80 60 80 H140 Q150 80 150 90 V94 Q145 104 139 94 Q133 108 125 94 Q118 101 111 94 Q104 110 96 94 Q89 102 82 94 Q75 107 68 94 Q61 101 56 94 Q52 99 50 94 Z" fill="#8e2f3a"/>
+          <g fill="#d8b77a">
+            <circle cx="66" cy="114" r="2.2"/><circle cx="84" cy="108" r="2"/><circle cx="104" cy="116" r="2.2"/>
+            <circle cx="122" cy="108" r="2"/><circle cx="138" cy="115" r="2.2"/>
+            <circle cx="46" cy="166" r="2.2"/><circle cx="72" cy="170" r="2"/><circle cx="100" cy="166" r="2.2"/>
+            <circle cx="128" cy="170" r="2"/><circle cx="154" cy="166" r="2.2"/>
+          </g>
+
+          <!-- vento -->
+          <g class="wind" fill="none" stroke="#f6efe3" stroke-width="2" stroke-linecap="round">
+            <path d="M0 40 Q30 34 60 42 T130 40"/>
+            <path d="M-10 54 Q24 48 56 56 T124 54"/>
+            <path d="M4 26 Q34 20 64 28 T120 26"/>
+          </g>
+
+          <!-- candeline -->
+          <g transform="translate(76 0)">
+            <rect x="-4" y="50" width="8" height="32" rx="2" fill="url(#stripes)"/>
+            <line x1="0" y1="50" x2="0" y2="44" stroke="#3a2a20" stroke-width="1.5"/>
+            <g class="flame" style="--d:0s"><circle cx="0" cy="34" r="16" fill="url(#glowG)"/><path d="M0 46 C-7 40 -7 31 0 20 C7 31 7 40 0 46 Z" fill="url(#flameG)"/></g>
+            <path class="smoke" style="--d:0s" d="M0 42 c-4 -6 4 -10 0 -16 c-4 -6 4 -10 0 -16" fill="none" stroke="#cfc6bb" stroke-width="2" stroke-linecap="round"/>
+          </g>
+          <g transform="translate(100 0)">
+            <rect x="-4" y="46" width="8" height="36" rx="2" fill="url(#stripes)"/>
+            <line x1="0" y1="46" x2="0" y2="40" stroke="#3a2a20" stroke-width="1.5"/>
+            <g class="flame" style="--d:.18s"><circle cx="0" cy="30" r="16" fill="url(#glowG)"/><path d="M0 42 C-7 36 -7 27 0 16 C7 27 7 36 0 42 Z" fill="url(#flameG)"/></g>
+            <path class="smoke" style="--d:.18s" d="M0 38 c-4 -6 4 -10 0 -16 c-4 -6 4 -10 0 -16" fill="none" stroke="#cfc6bb" stroke-width="2" stroke-linecap="round"/>
+          </g>
+          <g transform="translate(124 0)">
+            <rect x="-4" y="50" width="8" height="32" rx="2" fill="url(#stripes)"/>
+            <line x1="0" y1="50" x2="0" y2="44" stroke="#3a2a20" stroke-width="1.5"/>
+            <g class="flame" style="--d:.36s"><circle cx="0" cy="34" r="16" fill="url(#glowG)"/><path d="M0 46 C-7 40 -7 31 0 20 C7 31 7 40 0 46 Z" fill="url(#flameG)"/></g>
+            <path class="smoke" style="--d:.36s" d="M0 42 c-4 -6 4 -10 0 -16 c-4 -6 4 -10 0 -16" fill="none" stroke="#cfc6bb" stroke-width="2" stroke-linecap="round"/>
+          </g>
+        </svg>
       </div>
       <canvas id="scratch-canvas" aria-label="Gratta per scoprire"></canvas>
     </div>
 
-    <p class="hint" id="scratch-hint">Gratta con il dito ✨</p>
-    <button class="link-btn" id="scratch-skip" type="button" hidden>Non riesci? Tocca qui</button>
-    <a href="#lettera" class="scroll-cue" id="scroll-cue" hidden>Scorri <span>↓</span></a>
+    <div class="after-scratch">
+      <p class="hint" id="scratch-hint">Gratta con il dito ✨</p>
+      <button class="link-btn" id="scratch-skip" type="button" hidden>Non riesci? Tocca qui</button>
+      <h2 class="greeting" id="greeting" hidden aria-label="Buon compleanno"></h2>
+    </div>
 
     <svg class="mountains" viewBox="0 0 400 120" preserveAspectRatio="none" aria-hidden="true">
       <path d="M0 120 L0 70 L40 48 L70 62 L110 30 L150 58 L185 40 L220 64 L260 26 L300 56 L340 38 L400 66 L400 120 Z" fill="#17344a"/>
@@ -47,33 +108,30 @@
   </section>
 
   <!-- ========== 2. LETTERA + FOTO ========== -->
-  <section id="lettera" class="section paper-bg" hidden>
+  <section id="lettera" class="section paper-bg letter-section" hidden>
     <p class="eyebrow dark">Prima di tutto</p>
     <h2 class="reveal">Una lettera per te</h2>
 
-    <div class="envelope reveal" id="envelope" role="button" tabindex="0" aria-label="Apri la lettera">
-      <div class="env-back"></div>
-      <div class="env-card"></div>
-      <div class="env-pocket"></div>
-      <div class="env-flap"></div>
-      <div class="seal">♥</div>
+    <div class="envelope-wrap reveal">
+      <p class="click-here" id="click-here" aria-hidden="true">
+        clicca qui
+        <svg viewBox="0 0 60 50"><path d="M50 4 C48 24 34 38 10 42 M10 42 L20 34 M10 42 L19 48" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </p>
+      <div class="envelope wiggle" id="envelope" role="button" tabindex="0" aria-label="Apri la lettera">
+        <div class="env-back"></div>
+        <div class="env-card"></div>
+        <div class="env-pocket"></div>
+        <div class="env-flap"></div>
+        <div class="seal">♥</div>
+      </div>
     </div>
-    <p class="hint dark" id="envelope-hint">Tocca la busta</p>
 
     <article class="letter" id="letter" hidden>
       <div id="letter-text"></div>
       <p class="letter-sign" id="letter-sign"></p>
     </article>
 
-    <div class="memories" id="memories" hidden>
-      <h3 class="reveal">Noi, finora</h3>
-      <div class="gallery" id="gallery"></div>
-      <p class="hint dark small">← scorri le foto →</p>
-      <div class="video-wrap" id="video-wrap" hidden>
-        <video id="video" controls playsinline preload="metadata"></video>
-      </div>
-      <button class="cta" id="to-trip" type="button">Ma non è finita qui…</button>
-    </div>
+    <a href="#viaggio" class="scroll-cue dark" id="letter-cue" hidden>Scorri giù <span>↓</span></a>
   </section>
 
   <!-- ========== 3. REVEAL DEL VIAGGIO ========== -->

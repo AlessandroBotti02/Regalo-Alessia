@@ -2,7 +2,7 @@
    ✏️  PERSONALIZZA QUI  (è l'unica parte da modificare)
    ========================================================= */
 const CONFIG = {
-  // Come la chiami (appare sul gratta e vinci)
+  // Scritta che appare dopo le candeline: "Buon compleanno, <nome>"
   nome: "amore",
 
   // La tua firma in fondo alla lettera
@@ -17,19 +17,6 @@ const CONFIG = {
     "Grazie per [una cosa che ami di lei]. Grazie per come mi guardi quando pensi che non me ne accorga.",
     "Quest'anno ho preparato una piccola fuga. Non ti dico ancora dove… prima leggi fino in fondo.",
   ],
-
-  // Foto: mettile nella cartella /foto e scrivi qui nome file + didascalia.
-  // Usa JPG ridimensionati (max ~1200px di lato, < 400 KB ciascuno).
-  foto: [
-    { src: "foto/01.jpg", didascalia: "Il nostro primo…" },
-    { src: "foto/02.jpg", didascalia: "Quel giorno a…" },
-    { src: "foto/03.jpg", didascalia: "Tu, bellissima" },
-    { src: "foto/04.jpg", didascalia: "Noi due" },
-  ],
-
-  // Video facoltativo (MP4 H.264, < 20 MB). Lascia "" per nasconderlo.
-  video: "",          // es. "video/noi.mp4"
-  videoPoster: "",    // es. "foto/poster.jpg"
 
   // Canzone facoltativa (MP3). Parte al primo tocco sul gratta e vinci.
   musica: "",         // es. "musica/la-nostra-canzone.mp3"
@@ -232,11 +219,42 @@ function initScratch() {
 
   function win() {
     if (done) return; done = true;
+    const wait = (ms) => new Promise((r) => setTimeout(r, reduceMotion ? Math.min(ms, 300) : ms));
     canvas.classList.add("cleared");
     $("#scratch-hint").hidden = true; $("#scratch-skip").hidden = true;
-    confetti(140, 0.45);
-    if (navigator.vibrate) navigator.vibrate([30, 40, 30]);
-    setTimeout(() => { $("#scroll-cue").hidden = false; show("lettera", false); }, 700);
+    if (navigator.vibrate) navigator.vibrate(30);
+
+    (async () => {
+      await wait(1500);                           // si vede la torta con le candeline accese
+      $("#cake").classList.add("out");            // soffio: le candeline si spengono
+      wrap.classList.add("dark");
+      if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
+      await wait(1100);
+      showGreeting();                             // "Buon compleanno, amore" lettera per lettera
+      await wait(500);
+      confetti(160, 0.4);
+      await wait(2600);
+      show("lettera");                            // scorre da solo fino alla busta
+    })();
+  }
+
+  function showGreeting() {
+    const el = $("#greeting");
+    el.setAttribute("aria-label", `Buon compleanno, ${CONFIG.nome}`);
+    let i = 0;
+    [["l1", "Buon compleanno,"], ["l2", CONFIG.nome]].forEach(([cls, txt]) => {
+      const line = document.createElement("span");
+      line.className = `line ${cls}`;
+      [...txt].forEach((c) => {
+        const ch = document.createElement("span");
+        ch.className = "ch";
+        ch.textContent = c === " " ? "\u00A0" : c;
+        ch.style.animationDelay = `${(i++) * 0.05 + (cls === "l2" ? 0.25 : 0)}s`;
+        line.appendChild(ch);
+      });
+      el.appendChild(line);
+    });
+    el.hidden = false;
   }
 
   canvas.addEventListener("pointerdown", (e) => {
@@ -262,13 +280,10 @@ function initScratch() {
   // Piano B: dopo 12 secondi compare "Non riesci? Tocca qui"
   setTimeout(() => { if (!done) $("#scratch-skip").hidden = false; }, 12000);
   $("#scratch-skip").addEventListener("click", () => { music.start(); win(); });
-  $("#scroll-cue").addEventListener("click", (e) => { e.preventDefault(); show("lettera"); });
 }
 
-/* ---------- 2. Lettera, foto, video ---------- */
+/* ---------- 2. Lettera ---------- */
 function initLetter() {
-  $(".js-nome").textContent = CONFIG.nome;
-
   const text = $("#letter-text");
   CONFIG.lettera.forEach((par, i) => {
     const p = document.createElement("p");
@@ -278,44 +293,31 @@ function initLetter() {
   });
   const sign = $("#letter-sign");
   sign.textContent = CONFIG.firma;
-  sign.style.animationDelay = `${0.6 + CONFIG.lettera.length * 0.7}s`;
-
-  const gallery = $("#gallery");
-  CONFIG.foto.forEach((f) => {
-    const fig = document.createElement("figure"); fig.className = "polaroid";
-    const img = document.createElement("img");
-    img.src = f.src; img.alt = f.didascalia || ""; img.loading = "lazy"; img.decoding = "async";
-    img.onerror = () => {
-      const ph = document.createElement("div"); ph.className = "ph";
-      ph.textContent = `📷 Manca ${f.src}`; img.replaceWith(ph);
-    };
-    const cap = document.createElement("figcaption"); cap.textContent = f.didascalia || "";
-    fig.append(img, cap); gallery.appendChild(fig);
-  });
-  if (!CONFIG.foto.length) gallery.hidden = true;
-
-  if (CONFIG.video) {
-    const v = $("#video"); v.src = CONFIG.video;
-    if (CONFIG.videoPoster) v.poster = CONFIG.videoPoster;
-    $("#video-wrap").hidden = false;
-  }
+  const signDelay = 0.6 + CONFIG.lettera.length * 0.7;
+  sign.style.animationDelay = `${signDelay}s`;
 
   const env = $("#envelope");
   const open = () => {
     if (env.classList.contains("open")) return;
+    env.classList.remove("wiggle");
     env.classList.add("open");
-    $("#envelope-hint").hidden = true;
+    $("#click-here").hidden = true;
+    if (navigator.vibrate) navigator.vibrate(25);
     setTimeout(() => {
       $("#letter").hidden = false;
-      $("#memories").hidden = false;
-      observeReveals($("#memories"));
       $("#letter").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+      // a fine lettera: "Scorri giù" e si sblocca il viaggio
+      setTimeout(() => {
+        $("#letter-cue").hidden = false;
+        $("#viaggio").hidden = false;
+        observeReveals($("#viaggio"));
+      }, (signDelay + 0.8) * 1000);
     }, 1100);
   };
   env.addEventListener("click", open);
   env.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); open(); } });
 
-  $("#to-trip").addEventListener("click", () => show("viaggio"));
+  $("#letter-cue").addEventListener("click", (e) => { e.preventDefault(); show("viaggio"); });
 }
 
 /* ---------- 3. Biglietto + countdown + calendario ---------- */

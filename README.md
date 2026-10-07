@@ -8,19 +8,16 @@ Sito statico (HTML/CSS/JS vanilla) per GitHub Pages. Nessun build, nessuna dipen
 index.html        5 sezioni, sbloccate una alla volta (niente spoiler scrollando)
 style.css         tutto lo stile, mobile-first
 script.js         CONFIG in cima = l'unica parte da modificare
-foto/             01.jpg, 02.jpg… (JPG max ~1200px, < 400 KB)
 musica/           facoltativo: un MP3
 ```
 
-Flusso: **Gratta e vinci** → **Lettera** (busta che si apre + polaroid + video) → **Biglietto** che si gira (Lago di Como, 6–8 nov) + countdown + .ics → **Itinerario** (mappa, 3 giorni, toggle sole/pioggia la domenica, note, link) → **Finale** (5 tocchi sul cuore = messaggio segreto).
+Flusso: **Gratta e vinci** (torta, le candeline si spengono, "Buon compleanno, amore", scorre da sola giù) → **Lettera** (busta che si muove con "clicca qui", poi "Scorri giù") → **Biglietto** che si gira (Lago di Como, 6–8 nov) + countdown + .ics → **Itinerario** (mappa, 3 giorni, toggle sole/pioggia la domenica, note, link) → **Finale** (5 tocchi sul cuore = messaggio segreto).
 
 ## 1. Personalizza (30–60 min)
 
-1. Apri `script.js` e modifica `CONFIG`: `nome`, `firma`, `lettera`, `foto`, `segreto`, `finale`.
+1. Apri `script.js` e modifica `CONFIG`: `nome`, `firma`, `lettera`, `segreto`, `finale`.
 2. **Cerca `[` nel file**: tutti i testi tra parentesi quadre sono segnaposto da sostituire.
-3. Copia le foto in `foto/` con gli stessi nomi del CONFIG (attenzione maiuscole: `01.JPG` ≠ `01.jpg`).
-   Ridimensionale prima (su Mac: Anteprima → Strumenti → Regola dimensioni → 1200 px).
-4. Facoltativi: `musica: "musica/canzone.mp3"`, `video: "video/noi.mp4"` (MP4 H.264, < 20 MB).
+3. Facoltativo: `musica: "musica/canzone.mp3"`.
 
 ## 2. Prova in locale
 
@@ -43,10 +40,10 @@ Poi apri http://localhost:8000 (o dal telefono, sulla stessa Wi-Fi: http://IP-DE
 - [ ] Gratta e vinci: si gratta col dito, la pagina **non** scorre mentre gratti, si rivela da solo oltre ~50%
 - [ ] Dopo 12 s compare "Non riesci? Tocca qui" e funziona
 - [ ] Musica (se presente): parte al primo tocco, il pulsante ♪ la ferma; prova con telefono **non** in silenzioso
-- [ ] Busta: si apre e il titolo resta visibile; la lettera compare paragrafo per paragrafo
-- [ ] Nessun `[segnaposto]` rimasto, nessun "📷 Manca foto/…" nella galleria
-- [ ] Foto: scorrono in orizzontale, nessuna ruotata male (riesporta se lo sono)
-- [ ] Video (se presente): parte in linea, con audio
+- [ ] Dopo il gratta: torta → candeline che si spengono → "Buon compleanno, amore" → scorre da sola alla busta
+- [ ] Busta: si muove, "clicca qui" visibile; si apre e la lettera compare paragrafo per paragrafo
+- [ ] A fine lettera compare "Scorri giù" e sotto c'è il biglietto
+- [ ] Nessun `[segnaposto]` rimasto nella lettera
 - [ ] Biglietto: si gira, retro leggibile, coriandoli
 - [ ] Countdown corretto (≈ giorni al 6 novembre)
 - [ ] "Segnalo in calendario" apre/aggiunge l'evento 6–8 novembre
