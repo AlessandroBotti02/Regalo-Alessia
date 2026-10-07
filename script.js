@@ -19,18 +19,15 @@ const CONFIG = {
   ],
 
   // Canzone (MP3): parte subito dopo i coriandoli delle candeline. Lascia "" se non c'è.
-  musica: "",         // es. "musica/canzone.mp3"
+  musica: "musica/canzone.mp3",
   musicaDa: 0,        // da che secondo far partire la canzone (es. 45 = dal ritornello)
-  musicaLoop: true,   // true = ricomincia quando finisce, false = si ferma
+  musicaLoop: false,  // true = ricomincia quando finisce, false = si ferma
 
   // Effetto sonoro dei coriandoli
   suonoFesta: "suoni/festa.mp3",
 
-  // Messaggio segreto: si sblocca toccando 5 volte il cuore finale
-  segreto: "Lo sapevo che l'avresti trovato. Ti amo più di quanto riesca a scrivere. Il 6 novembre, la prima sera, sulla terrazza: ho ancora una cosa da dirti. ♥",
-
-  // Frase finale (puoi usare <em>…</em> per il corsivo dorato)
-  finale: "Ci vediamo il <em>6 novembre</em>.<br>Porta la sciarpa,<br>al resto penso io.",
+  // Messaggio segreto: compare dopo aver schiacciato 5 volte il cuore finale
+  segreto: "Non vedo l'ora di passare un weekend con l'amore della mia vita",
 
   // Data/ora di partenza per il countdown
   partenza: "2026-11-06T15:00:00",
@@ -489,25 +486,69 @@ function initItinerary() {
   $("#to-end").addEventListener("click", () => show("finale"));
 }
 
-/* ---------- 5. Finale + easter egg ---------- */
+/* ---------- 5. Finale: cuore da schiacciare ---------- */
+function heartBurst(origin, big = true) {
+  const layer = $("#heart-burst");
+  const r = origin.getBoundingClientRect();
+  const cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+  const colors = ["#c96b6b", "#8e2f3a", "#d8b77a", "#ecd6a4", "#f6efe3", "#e08a8a"];
+  const add = (html, cls) => {
+    const el = document.createElement("span");
+    el.className = cls; el.innerHTML = html;
+    el.style.left = `${cx}px`; el.style.top = `${cy}px`;
+    layer.appendChild(el); return el;
+  };
+  const heartSVG = (fill, stroke) => `<svg viewBox="0 0 100 92"><path d="M50 89 C21 67 3 51 3 29 C3 14 15 3 29 3 C39 3 46 9 50 17 C54 9 61 3 71 3 C85 3 97 14 97 29 C97 51 79 67 50 89 Z" fill="${fill}" stroke="${stroke}" stroke-width="3"/></svg>`;
+
+  // onde di cuori che si allargano
+  (big ? [0, 180, 360, 540] : [0]).forEach((delay, i) => {
+    const el = add(heartSVG("none", colors[i % 3]), "burst-ring");
+    el.animate([
+      { transform: "translate(-50%,-50%) scale(.5)", opacity: 0.9 },
+      { transform: `translate(-50%,-50%) scale(${big ? 3.4 : 2})`, opacity: 0 },
+    ], { duration: 1600, delay, easing: "cubic-bezier(.2,.7,.3,1)", fill: "both" }).onfinish = () => el.remove();
+  });
+
+  // tanti cuoricini che volano fuori
+  const n = reduceMotion ? 8 : (big ? 34 : 12);
+  for (let i = 0; i < n; i++) {
+    const angle = (Math.PI * 2 * i) / n + Math.random() * 0.5;
+    const dist = (big ? 130 : 70) + Math.random() * (big ? 170 : 70);
+    const size = 12 + Math.random() * (big ? 26 : 14);
+    const el = add(heartSVG(colors[i % colors.length], "none"), "burst-heart");
+    el.style.width = `${size}px`;
+    const dx = Math.cos(angle) * dist, dy = Math.sin(angle) * dist - 40;
+    const rot = (Math.random() - 0.5) * 70;
+    el.animate([
+      { transform: "translate(-50%,-50%) scale(.2)", opacity: 0 },
+      { transform: `translate(calc(-50% + ${dx * 0.6}px), calc(-50% + ${dy * 0.6}px)) scale(1.1) rotate(${rot / 2}deg)`, opacity: 1, offset: 0.35 },
+      { transform: `translate(calc(-50% + ${dx}px), calc(-50% + ${dy + 60}px)) scale(.8) rotate(${rot}deg)`, opacity: 0 },
+    ], { duration: 1300 + Math.random() * 700, delay: Math.random() * 200, easing: "cubic-bezier(.15,.8,.3,1)", fill: "both" }).onfinish = () => el.remove();
+  }
+}
+
 function initFinale() {
-  $("#finale-text").innerHTML = CONFIG.finale;
-  const heart = $("#heart"), hint = $("#heart-hint");
+  const heart = $("#heart"), inner = $("#heart-inner"), hint = $("#heart-hint");
   const msgs = ["", "ancora…", "ancora un po'…", "ci sei quasi…", "un'ultima volta ♥"];
   let taps = 0;
   heart.addEventListener("click", () => {
-    if (taps >= 5) { confetti(60, 0.5); return; }
+    inner.animate([
+      { transform: "scale(1)" }, { transform: "scale(.86)" }, { transform: "scale(1.08)" }, { transform: "scale(1)" },
+    ], { duration: 380, easing: "ease-out" });
+    if (taps >= 5) { heartBurst(heart, false); return; }
     taps++;
-    heart.style.fontSize = `${4.5 + taps * 0.6}rem`;
+    heart.style.setProperty("--grow", 1 + taps * 0.05);
     if (navigator.vibrate) navigator.vibrate(20);
     if (taps < 5) { hint.textContent = msgs[taps]; return; }
     hint.innerHTML = "&nbsp;";
-    $("#secret").textContent = CONFIG.segreto;
-    $("#secret").hidden = false;
-    confetti(200, 0.5);
-    sound.festa(0.7);
+    heartBurst(heart, true);
+    if (navigator.vibrate) navigator.vibrate([30, 50, 30, 50, 60]);
+    setTimeout(() => {
+      $("#secret").textContent = CONFIG.segreto;
+      $("#secret").hidden = false;
+      $("#secret").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+    }, 700);
   });
-  $("#restart").addEventListener("click", () => { window.scrollTo(0, 0); location.reload(); });
 }
 
 /* ---------- Avvio ---------- */

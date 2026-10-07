@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 
@@ -245,13 +245,17 @@
   <!-- ========== 5. FINALE ========== -->
   <section id="finale" class="screen finale" hidden>
     <div class="stars" aria-hidden="true"></div>
-    <p class="finale-text reveal" id="finale-text"></p>
-    <button class="heart-btn" id="heart" type="button" aria-label="Cuore">♥</button>
-    <p class="hint small" id="heart-hint">&nbsp;</p>
+    <button class="heart-btn" id="heart" type="button" aria-label="Schiacciami">
+      <span class="heart-inner" id="heart-inner">
+        <svg viewBox="0 0 100 92" aria-hidden="true"><path d="M50 89 C21 67 3 51 3 29 C3 14 15 3 29 3 C39 3 46 9 50 17 C54 9 61 3 71 3 C85 3 97 14 97 29 C97 51 79 67 50 89 Z"/></svg>
+        <span class="heart-label">schiacciami</span>
+      </span>
+    </button>
+    <p class="heart-hint" id="heart-hint">&nbsp;</p>
     <div class="secret" id="secret" hidden></div>
-    <button class="link-btn" id="restart" type="button">Rivivi dall'inizio</button>
+    <div class="heart-burst" id="heart-burst" aria-hidden="true"></div>
   </section>
 
-  <script src="script.js"></script>
+  <script src="script.js?v=5"></script>
 </body>
 </html>

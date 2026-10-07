@@ -11,7 +11,7 @@ script.js         CONFIG in cima = l'unica parte da modificare
 musica/           facoltativo: un MP3
 ```
 
-Flusso: **Gratta e vinci** (torta, le candeline si spengono, "Buon compleanno, amore", scorre da sola giù) → **Lettera** (busta che si muove con "clicca qui", poi "Scorri giù") → **Biglietto** che si gira (Lago di Como, 6–8 nov) + countdown + .ics → **Itinerario** (mappa, 3 giorni, toggle sole/pioggia la domenica, note, link) → **Finale** (5 tocchi sul cuore = messaggio segreto).
+Flusso: **Gratta e vinci** (torta, le candeline si spengono, "Buon compleanno, amore", scorre da sola giù) → **Lettera** (busta che si muove con "clicca qui", poi "Scorri giù") → **Biglietto** che si gira (Lago di Como, 6–8 nov) + countdown + .ics → **Itinerario** (mappa, 3 giorni, toggle sole/pioggia la domenica, note, link) → **Finale** (cuore gigante "schiacciami": 5 tocchi = esplosione di cuori + messaggio segreto).
 
 ## 1. Personalizza (30–60 min)
 
