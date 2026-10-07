@@ -159,47 +159,24 @@ const confetti = (() => {
   return burst;
 })();
 
-/* ---------- Audio: effetto festa + canzone ----------
-   I telefoni fanno partire l'audio solo dopo un tocco: al primo tocco sul
-   gratta e vinci "sblocchiamo" i suoni, poi possono partire da soli. */
+/* ---------- Audio: canzone + effetto festa ----------
+   I telefoni fanno partire l'audio solo dopo un tocco. Quando lei alza il dito
+   dal gratta e vinci facciamo play()+pause() immediati sulla canzone (non si
+   sente nulla): così dopo può partire da sola, appena si spengono le candeline.
+   L'effetto festa parte solo dal tocco sul biglietto, quindi non serve sbloccarlo. */
 const sound = (() => {
   const song = $("#music"), btn = $("#music-btn");
-  const sfx = CONFIG.suonoFesta ? new Audio(CONFIG.suonoFesta) : null;   // riserva, se Web Audio non c'è
-  const AC = window.AudioContext || window.webkitAudioContext;
-  let actx = null, buf = null, loading = false;
+  const sfx = CONFIG.suonoFesta ? new Audio(CONFIG.suonoFesta) : null;
   let unlocked = false, songStarted = false, fadeTimer = null;
   if (sfx) sfx.preload = "auto";
   if (CONFIG.musica) { song.src = CONFIG.musica; song.loop = CONFIG.musicaLoop; song.preload = "auto"; }
 
-  // L'effetto festa passa da Web Audio: su iPhone basta sbloccarlo una volta
-  // con un tocco e poi può suonare quando vuole (anche secondi dopo).
-  function loadSfx() {
-    if (loading || !actx || !CONFIG.suonoFesta) return; loading = true;
-    fetch(CONFIG.suonoFesta).then((r) => r.arrayBuffer())
-      .then((data) => new Promise((ok, ko) => actx.decodeAudioData(data, ok, ko)))
-      .then((b) => { buf = b; })
-      .catch(() => { loading = false; });
-  }
-
   function unlock() {
+    if (unlocked || !CONFIG.musica) return; unlocked = true;
     try { if (navigator.audioSession) navigator.audioSession.type = "playback"; } catch (e) {}
-    if (AC) {
-      try { if (!actx) actx = new AC(); } catch (e) {}
-      if (actx) {
-        if (actx.state !== "running") actx.resume().catch(() => {});
-        const silent = actx.createBufferSource();          // suono muto: completa lo sblocco su iOS
-        silent.buffer = actx.createBuffer(1, 1, 22050);
-        silent.connect(actx.destination); silent.start(0);
-        loadSfx();
-      }
-    }
-    if (unlocked) return; unlocked = true;
-    if (CONFIG.musica) {                                   // sblocca anche la canzone
-      song.muted = true;
-      const p = song.play();
-      const reset = () => { song.pause(); song.currentTime = 0; song.muted = false; };
-      p && p.then ? p.then(reset).catch(() => { song.muted = false; }) : reset();
-    }
+    const p = song.play();
+    song.pause();
+    if (p && p.catch) p.catch(() => {});
   }
 
   function fadeTo(target, ms) {        // su iPhone il volume è fisso: lì la dissolvenza viene ignorata
@@ -213,34 +190,42 @@ const sound = (() => {
   }
 
   function festa(vol = 1) {
-    if (actx && buf) {
-      if (actx.state !== "running") actx.resume().catch(() => {});
-      const src = actx.createBufferSource(), gain = actx.createGain();
-      src.buffer = buf; gain.gain.value = vol;
-      src.connect(gain); gain.connect(actx.destination);
-      src.start(0);
-    } else if (sfx) {
-      sfx.currentTime = 0; sfx.volume = vol;
-      sfx.play().catch(() => {});
-    }
+    if (!sfx) return;
+    sfx.currentTime = 0; sfx.volume = vol;
+    sfx.play().catch(() => {});
     if (songStarted && !song.paused) {        // abbassa un attimo la canzone
       fadeTo(0.25, 200);
       setTimeout(() => fadeTo(0.8, 1200), 1800);
     }
   }
 
+  function playSong() {
+    return song.play().then(() => {
+      btn.hidden = false; btn.classList.add("playing"); btn.classList.remove("muted");
+    });
+  }
+
   function startSong() {
     if (!CONFIG.musica || songStarted) return; songStarted = true;
     song.currentTime = CONFIG.musicaDa || 0;
-    song.volume = 0;
-    song.play().then(() => {
-      fadeTo(0.8, 2500);
-      btn.hidden = false; btn.classList.add("playing");
-    }).catch(() => { btn.hidden = false; btn.classList.add("muted"); });
+    song.volume = 0.2;
+    playSong().then(() => fadeTo(0.8, 2000)).catch(() => {
+      // Il telefono l'ha bloccata: riparte al prossimo tocco (es. sulla busta)
+      song.volume = 0.8;
+      btn.hidden = false; btn.classList.add("muted");
+      const retry = () => {
+        document.removeEventListener("touchend", retry, true);
+        document.removeEventListener("click", retry, true);
+        if (song.paused) playSong().catch(() => {});
+      };
+      document.addEventListener("touchend", retry, true);
+      document.addEventListener("click", retry, true);
+    });
   }
 
-  btn.addEventListener("click", () => {
-    if (song.paused) { song.volume = 0.8; song.play(); btn.classList.add("playing"); btn.classList.remove("muted"); }
+  btn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (song.paused) { song.volume = 0.8; playSong().catch(() => {}); }
     else { song.pause(); btn.classList.remove("playing"); btn.classList.add("muted"); }
   });
 
@@ -299,14 +284,11 @@ function initScratch() {
       $("#cake").classList.add("out");            // soffio: le candeline si spengono
       wrap.classList.add("dark");
       if (navigator.vibrate) navigator.vibrate([20, 30, 20]);
-      await wait(1100);
+      await wait(700);
+      sound.startSong();                          // candeline spente: parte la canzone
+      await wait(400);
       showGreeting();                             // "Buon compleanno, amore" lettera per lettera
-      await wait(500);
-      confetti(160, 0.4);
-      sound.festa();
-      await wait(1700);                           // la canzone parte quando la trombetta è finita
-      sound.startSong();
-      await wait(900);
+      await wait(3600);
       show("lettera");                            // scorre da solo fino alla busta
     })();
   }
